@@ -1,211 +1,291 @@
-# 🚀 Guía de Despliegue en Dockploy
+# 🚀 Guía de Despliegue en Dockploy con Docker Compose
 
-Esta guía te llevará paso a paso para desplegar esta aplicación en Dockploy.
+Esta guía te llevará paso a paso para desplegar esta aplicación en Dockploy usando **Docker Compose**.
 
 ## 📋 Pre-requisitos
 
 - ✅ Dockploy instalado y funcionando en `192.168.199.246`
 - ✅ DNS configurado: `dockploy.domingoalonsoit.com` → `192.168.199.246`
-- ✅ Repositorio en GitHub bajo la organización IT-DAG
+- ✅ Repositorio en GitHub: `https://github.com/IT-DAG/DemoDockploy`
 
-## 🎯 Parte 1: Preparar el Repositorio en GitHub
+## 🎯 ¿Por qué Docker Compose?
 
-### 1. Inicializar Git localmente
+**Ventajas de usar Compose en Dockploy:**
+- ✅ **Paridad local-producción**: El mismo `docker-compose.yml` funciona en ambos
+- ✅ **Multi-servicio**: Fácil agregar BD, Redis, etc. en el futuro
+- ✅ **Infraestructura como código**: Todo versionado en Git
+- ✅ **Portable**: Migrar a otros servidores es trivial
+- ✅ **Mantenible**: Cambios en un archivo vs configurar en la UI
 
-```bash
-cd /Users/aartiles/Repos/DemoDocploy
-
-# Inicializar repositorio
-git init
-
-# Agregar todos los archivos
-git add .
-
-# Hacer el primer commit
-git commit -m "Initial commit: Hello World app con Docker"
-```
-
-### 2. Crear repositorio en GitHub
-
-1. Ve a GitHub: https://github.com/organizations/IT-DAG/repositories/new
-2. Nombre del repositorio: `DemoDockploy`
-3. Descripción: "Demo app para aprender despliegues con Dockploy y Docker"
-4. Visibilidad: Público o Privado (según prefieras)
-5. **NO** inicialices con README, .gitignore ni licencia (ya los tenemos)
-6. Click en "Create repository"
-
-### 3. Subir código a GitHub
-
-```bash
-# Agregar el remoto (reemplaza con la URL de tu repo)
-git remote add origin https://github.com/IT-DAG/DemoDockploy.git
-
-# Subir el código
-git branch -M main
-git push -u origin main
-```
-
-## 🐳 Parte 2: Despliegue Manual en Dockploy
+## 🐳 Parte 1: Despliegue en Dockploy
 
 ### Paso 1: Acceder a Dockploy
 
 1. Abre tu navegador y ve a: `http://dockploy.domingoalonsoit.com`
 2. Inicia sesión con tus credenciales
 
-### Paso 2: Crear un Nuevo Proyecto
+### Paso 2: Crear un Nuevo Proyecto (Opcional pero recomendado)
 
 1. Click en **"Create Project"** o **"New Project"**
 2. Configuración:
    - **Project Name**: `DemoDockploy`
-   - **Description**: "Aplicación de demo para aprendizaje"
+   - **Description**: "Aplicación de demo para aprendizaje con Docker Compose"
 
-### Paso 3: Agregar una Aplicación
+> **📝 Nota**: Los proyectos ayudan a organizar múltiples servicios. Puedes saltarte este paso y crear el servicio directamente.
 
-1. Dentro del proyecto, click en **"Add Service"** o **"New Application"**
-2. Selecciona **"Git Service"** o **"GitHub"**
+### Paso 3: Crear Servicio con Compose
+
+1. Click en **"+ Create Service"**
+2. Selecciona **"Compose"**
 
 ### Paso 4: Configurar el Repositorio
 
-1. **Repository URL**: `https://github.com/IT-DAG/DemoDockploy.git`
-2. **Branch**: `main`
-3. **Build Type**: Selecciona **"Dockerfile"**
-4. **Dockerfile Path**: `./Dockerfile` (o déjalo por defecto)
+En la configuración del servicio Compose:
 
-### Paso 5: Configurar Variables de Entorno
+1. **Service Name**: `demodockploy` (o el nombre que prefieras)
+2. **Repository Provider**: Selecciona **"GitHub"** o **"Git"**
+3. **Repository URL**: `https://github.com/IT-DAG/DemoDockploy.git`
+4. **Branch**: `main`
+5. **Compose File Path**: `docker-compose.yml` (por defecto)
 
-En la sección de **Environment Variables**, agrega:
+### Paso 5: Configurar Dominio y Rutas
+
+Esta es la parte importante para que funcione con subdirectorios:
+
+1. En la sección **"Domains"** o **"Routing"**:
+   - **Domain**: `dockploy.domingoalonsoit.com`
+   - **Path** o **Prefix**: `/DemoDockploy`
+   - **Port**: `3000` (el puerto del contenedor)
+
+> **⚠️ Importante**: La configuración exacta puede variar según tu versión de Dockploy. Busca opciones como:
+> - Path Prefix
+> - Context Path
+> - Base Path
+> - Traefik Rule
+
+### Paso 6: Configurar Variables de Entorno (Opcional)
+
+Si necesitas sobrescribir alguna variable del `docker-compose.yml`:
 
 ```
-PORT=3000
-BASE_PATH=/DemoDockploy
+NODE_ENV=production
 ```
 
-### Paso 6: Configurar el Dominio y Rutas
+> **📝 Nota**: No necesitas configurar `PORT` ni `BASE_PATH` aquí porque ya están en el `docker-compose.yml`.
 
-Esta es la parte **MUY IMPORTANTE** para que funcione con subdirectorios:
+### Paso 7: Desplegar
 
-1. **Port**: `3000` (el puerto interno del contenedor)
-2. **Domain**: `dockploy.domingoalonsoit.com`
-3. **Path/Prefix**: `/DemoDockploy`
+1. Click en **"Deploy"** o **"Create & Deploy"**
+2. Dockploy ejecutará:
+   ```bash
+   git clone https://github.com/IT-DAG/DemoDockploy.git
+   docker-compose up --build -d
+   ```
+3. Espera a que se construya la imagen y se inicie el contenedor
+4. Verifica que el estado sea "healthy" o "running"
 
-> **Nota**: La configuración exacta puede variar según la versión de Dockploy. Busca opciones como:
-> - "Path Prefix"
-> - "Base Path"
-> - "Context Path"
-> - En algunos casos, esto se configura en el Traefik Labels
-
-### Paso 7: Configuración Avanzada (si es necesario)
-
-Si Dockploy usa Traefik (que es común), es posible que necesites agregar labels personalizados:
-
-```yaml
-traefik.http.routers.demodockploy.rule=Host(`dockploy.domingoalonsoit.com`) && PathPrefix(`/DemoDockploy`)
-traefik.http.middlewares.demodockploy-stripprefix.stripprefix.prefixes=/DemoDockploy
-traefik.http.routers.demodockploy.middlewares=demodockploy-stripprefix
-```
-
-> **IMPORTANTE**: Si usas `StripPrefix`, entonces **NO** configures `BASE_PATH=/DemoDockploy` en las variables de entorno, déjalo vacío. El middleware quitará el prefijo antes de enviar la petición a tu app.
-
-**Decisión a tomar:**
-
-**Opción A: Sin StripPrefix** (Recomendado para este proyecto)
-- Variable de entorno: `BASE_PATH=/DemoDockploy`
-- La app maneja internamente todas las rutas con el prefijo
-- Más control desde la aplicación
-
-**Opción B: Con StripPrefix**
-- Variable de entorno: `BASE_PATH=` (vacío o sin definir)
-- Traefik quita el prefijo antes de enviar la petición
-- Más simple, pero menos control
-
-### Paso 8: Desplegar
-
-1. Click en **"Deploy"** o **"Build & Deploy"**
-2. Espera a que se construya la imagen Docker
-3. Espera a que el contenedor se inicie
-4. Verifica el estado en "healthy"
-
-### Paso 9: Verificar el Despliegue
+### Paso 8: Verificar el Despliegue
 
 Abre tu navegador y ve a:
 - **App principal**: `http://dockploy.domingoalonsoit.com/DemoDockploy`
 - **Health check**: `http://dockploy.domingoalonsoit.com/DemoDockploy/health`
 - **API Info**: `http://dockploy.domingoalonsoit.com/DemoDockploy/api/info`
 
-Deberías ver la página de "¡Hola Mundo desde Docker!" con información del servidor.
+Deberías ver la página de "¡Hola Mundo desde Docker!" 🎉
 
-## 🔄 Parte 3: Configurar Despliegue Automático (Opcional)
+## 🔄 Parte 2: Configurar Despliegue Automático
 
-Para que Dockploy despliegue automáticamente cuando hagas push a GitHub:
+### Opción 1: Webhooks de GitHub (Recomendado)
 
-### Opción 1: Webhooks de GitHub
-
-1. En Dockploy, ve a la configuración de tu aplicación
-2. Copia la **Webhook URL** que te proporciona Dockploy
+1. En Dockploy, ve a la configuración de tu servicio Compose
+2. Copia la **Webhook URL** (algo como: `http://dockploy.domingoalonsoit.com/api/webhook/...`)
 3. Ve a tu repositorio en GitHub: `https://github.com/IT-DAG/DemoDockploy/settings/hooks`
 4. Click en **"Add webhook"**
 5. Configuración:
    - **Payload URL**: La URL del webhook de Dockploy
    - **Content type**: `application/json`
    - **Events**: Selecciona "Just the push event"
+   - **Active**: ✅ Marcado
 6. Click en **"Add webhook"**
 
-### Opción 2: GitHub Actions (Más avanzado)
+Ahora cada vez que hagas `git push`, Dockploy automáticamente:
+1. Detectará el cambio
+2. Hará `git pull`
+3. Ejecutará `docker-compose up --build -d`
+4. Desplegará la nueva versión
 
-Puedes crear un workflow de GitHub Actions que notifique a Dockploy después de cada push. Esto lo podemos configurar más adelante si lo necesitas.
+### Opción 2: Despliegue Manual
 
-## 🧪 Probar el Flujo Completo
+Si prefieres control manual, simplemente:
+1. Haz tus cambios localmente
+2. `git push` a GitHub
+3. En Dockploy, click en **"Redeploy"** o **"Rebuild"**
 
-1. Haz un cambio en `server.js` (por ejemplo, cambia el texto "¡Hola Mundo!")
-2. Commit y push:
+## 🧪 Parte 3: Probar el Flujo Completo
+
+### Test 1: Cambio Simple
+
+1. Edita `server.js` localmente, cambia el texto "¡Hola Mundo!"
+2. Prueba en local:
    ```bash
-   git add .
+   docker-compose -f docker-compose.local.yml up --build
+   ```
+3. Verifica en: `http://localhost:3000`
+4. Si funciona, haz commit y push:
+   ```bash
+   git add server.js
    git commit -m "Update: Cambio de texto de prueba"
    git push
    ```
-3. Si configuraste el webhook, Dockploy debería detectar el cambio y redesplegar automáticamente
-4. Espera unos minutos y verifica los cambios en tu navegador
+5. Si configuraste webhook, espera ~30 segundos
+6. Verifica en: `http://dockploy.domingoalonsoit.com/DemoDockploy`
+
+### Test 2: Cambio en docker-compose.yml
+
+1. Edita `docker-compose.yml`, por ejemplo agrega una variable:
+   ```yaml
+   environment:
+     - BASE_PATH=/DemoDockploy
+     - VERSION=2.0
+   ```
+2. Prueba en local con el compose de producción:
+   ```bash
+   docker-compose up --build
+   ```
+3. Verifica en: `http://localhost:3000/DemoDockploy`
+4. Push y verifica en Dockploy
 
 ## 📊 Troubleshooting
 
-### Problema: La app no carga en `/DemoDockploy`
+### Problema: El servicio no inicia
 
-**Solución**: Verifica que:
-1. La variable `BASE_PATH=/DemoDockploy` esté configurada
-2. El path prefix esté configurado correctamente en Dockploy
-3. No estés usando `StripPrefix` y `BASE_PATH` al mismo tiempo
-
-### Problema: El contenedor no inicia (unhealthy)
+**Síntomas**: El contenedor se crea pero muestra "unhealthy" o "exited"
 
 **Solución**:
-1. Revisa los logs en Dockploy
-2. Verifica que el puerto 3000 esté correctamente mapeado
-3. Asegúrate de que no haya conflictos de puertos
+1. En Dockploy, ve a los **logs** del servicio
+2. Busca errores en:
+   ```bash
+   docker-compose logs
+   ```
+3. Verifica que el `docker-compose.yml` es válido:
+   ```bash
+   docker-compose config
+   ```
 
-### Problema: 404 en todas las rutas
+### Problema: 404 en `/DemoDockploy`
+
+**Síntomas**: La app carga pero no en el subdirectorio
 
 **Solución**:
-1. Si usas `StripPrefix`, quita la variable `BASE_PATH`
-2. Si no usas `StripPrefix`, asegúrate de que `BASE_PATH=/DemoDockploy` esté configurada
+1. Verifica que `BASE_PATH=/DemoDockploy` esté en el `docker-compose.yml`
+2. Verifica que la ruta esté configurada en Dockploy (Traefik)
+3. Revisa los logs para ver qué rutas está manejando la app
 
 ### Problema: El webhook no funciona
 
+**Síntomas**: Push a GitHub pero Dockploy no despliega
+
 **Solución**:
-1. Verifica que la URL del webhook sea correcta
-2. Mira los "Recent Deliveries" en GitHub para ver si hay errores
-3. Asegúrate de que Dockploy pueda recibir peticiones desde GitHub
+1. Ve a GitHub → Settings → Webhooks → Recent Deliveries
+2. Verifica que la respuesta sea `200 OK`
+3. Si es `404` o `500`, revisa la URL del webhook
+4. Asegúrate de que Dockploy pueda recibir peticiones desde GitHub
 
-## 📝 Notas Adicionales
+### Problema: Cambios no se reflejan
 
-- **Multiple Apps**: Para desplegar otra aplicación en `/otraapp`, repite el proceso con un nuevo proyecto y configura `BASE_PATH=/otraapp`
-- **HTTPS**: Para producción, considera configurar SSL/TLS en Dockploy con Let's Encrypt
-- **Logs**: Usa `docker logs` o la interfaz de Dockploy para ver los logs de la aplicación
-- **Recursos**: Puedes limitar CPU y memoria en la configuración de Dockploy
+**Síntomas**: Desplegaste pero ves la versión antigua
+
+**Solución**:
+1. Dockploy cachea imágenes. Fuerza rebuild:
+   ```bash
+   docker-compose up --build --force-recreate
+   ```
+2. En Dockploy, busca opción "Rebuild" o "Force deploy"
+3. Verifica que esté usando la rama correcta (`main`)
+
+### Problema: Port already in use
+
+**Síntomas**: Error "port 3000 is already allocated"
+
+**Solución**:
+1. Otro servicio usa el puerto 3000
+2. Cambia el puerto en `docker-compose.yml`:
+   ```yaml
+   ports:
+     - "3001:3000"  # Puerto externo:interno
+   ```
+3. Actualiza la configuración en Dockploy
 
 ## 🎓 Próximos Pasos
 
-Una vez que domines este flujo básico, puedes:
-1. Agregar múltiples ambientes (staging, production)
-2. Configurar CI/CD más avanzado con GitHub Actions
-3. Agregar bases de datos y otros servicios
-4. Implementar monitoreo y alertas
+### 1. Agregar una Base de Datos
+
+Cuando estés listo para expandir:
+
+```yaml
+# docker-compose.yml
+services:
+  app:
+    # ... configuración existente
+    depends_on:
+      - postgres
+    environment:
+      - DB_HOST=postgres
+  
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  db_data:
+```
+
+### 2. Múltiples Aplicaciones
+
+Para desplegar otra app en `/otraapp`:
+1. Crear nuevo repositorio
+2. Crear nuevo servicio Compose en Dockploy
+3. Configurar path `/otraapp`
+
+### 3. Configurar HTTPS
+
+Para producción real:
+1. Dockploy/Traefik soporta Let's Encrypt automático
+2. Configura tu dominio con certificado SSL
+3. Cambia las URLs a `https://`
+
+### 4. Monitoreo y Logs
+
+- Usa los logs de Dockploy para debugging
+- Considera agregar herramientas como:
+  - Prometheus + Grafana para métricas
+  - Loki para logs centralizados
+  - Uptime Kuma para monitoring
+
+## 📝 Diferencias: Compose vs Application
+
+Si en el futuro te preguntas por qué usamos Compose:
+
+| Aspecto | Application | Compose ✅ |
+|---------|------------|-----------|
+| Config en GUI | ✅ | ❌ |
+| Multi-servicio | ❌ Manual | ✅ Automático |
+| Paridad local | ❌ | ✅ |
+| Versionado | Parcial | ✅ Total |
+| Escalabilidad | Limitada | ✅ Alta |
+| Migración | Difícil | ✅ Fácil |
+
+## 🌐 URLs de Referencia
+
+- **Repositorio GitHub**: https://github.com/IT-DAG/DemoDockploy
+- **Dockploy**: http://dockploy.domingoalonsoit.com
+- **App desplegada**: http://dockploy.domingoalonsoit.com/DemoDockploy
+- **Health check**: http://dockploy.domingoalonsoit.com/DemoDockploy/health
+
+---
+
+¡Listo para desplegar! 🚀 Si tienes problemas, revisa la sección de Troubleshooting o los logs en Dockploy.

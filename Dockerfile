@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instalar dependencias
-RUN npm ci --only=production
+RUN npm install --only=production
 
 # Copiar el resto de la aplicación
 COPY . .
@@ -18,7 +18,7 @@ EXPOSE 3000
 
 # Health check para Docker
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+    CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Comando para ejecutar la aplicación
 CMD ["npm", "start"]
