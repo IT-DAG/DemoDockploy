@@ -1,0 +1,16 @@
+{
+  "name": "demo-dockploy",
+  "version": "1.0.0",
+  "description": "Hello World app para aprender despliegues con Dockploy y Docker",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["docker", "dockploy", "nodejs", "express"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
