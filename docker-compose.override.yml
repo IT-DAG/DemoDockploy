@@ -1,0 +1,11 @@
+# docker-compose.override.yml
+# Este archivo se usa SOLO EN LOCAL para exponer puertos
+# Docker Compose lo carga automáticamente junto con docker-compose.yml
+# NO se sube a Git (está en .gitignore)
+
+version: '3.8'
+
+services:
+  app:
+    ports:
+      - "3000:3000"
