@@ -92,7 +92,7 @@ app.get(BASE_PATH + '/', (req, res) => {
     <body>
       <div class="container">
         <div class="logo">🐳</div>
-        <h1>¡Hola Mundo desde Docker!</h1>
+        <h1>¡Hola Mundo desde Docker MODIFICADO!</h1>
         <p class="subtitle">Demo de Dockploy - IT-DAG</p>
         
         <div class="info-box">
