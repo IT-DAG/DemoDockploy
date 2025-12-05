@@ -10,6 +10,14 @@ services:
       - PORT=3000
       - BASE_PATH= # Sin subdirectorio en local
       - NODE_ENV=development
+      - DB_HOST=postgres
+      - DB_USER=demouser
+      - DB_PASSWORD=demopass
+      - DB_NAME=demodb
+      - DB_PORT=5432
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
     volumes:
       # Hot reload para desarrollo (opcional)
@@ -20,3 +28,24 @@ services:
       timeout: 3s
       retries: 3
       start_period: 10s
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: demo-dockploy-postgres-local
+    environment:
+      - POSTGRES_USER=demouser
+      - POSTGRES_PASSWORD=demopass
+      - POSTGRES_DB=demodb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U demouser -d demodb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
