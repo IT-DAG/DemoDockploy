@@ -14,7 +14,7 @@ const BASE_PATH = process.env.BASE_PATH || '';
 app.use(BASE_PATH, express.static(path.join(__dirname, 'public')));
 
 // Ruta principal - Hello World
-app.get(BASE_PATH, (req, res) => {
+app.get(BASE_PATH + '/', (req, res) => {
   res.send(`
     <!DOCTYPE html>
     <html lang="es">
