@@ -4,8 +4,9 @@ services:
   app:
     build: .
     container_name: demo-dockploy
-    ports:
-      - "3000:3000"
+    # NO exponemos puertos al host - Traefik maneja el routing
+    expose:
+      - "3000"
     environment:
       - PORT=3000
       - BASE_PATH=/DemoDockploy
@@ -17,3 +18,7 @@ services:
       timeout: 3s
       retries: 3
       start_period: 10s
+    labels:
+      # Labels para Traefik (Dockploy los gestiona automáticamente)
+      - "traefik.enable=true"
+      - "traefik.http.services.demodockploy.loadbalancer.server.port=3000"
