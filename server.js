@@ -14,7 +14,7 @@ const BASE_PATH = process.env.BASE_PATH || '';
 app.use(BASE_PATH, express.static(path.join(__dirname, 'public')));
 
 // Ruta principal - Hello World
-app.get(BASE_PATH + '/', (req, res) => {
+app.get(BASE_PATH, (req, res) => {
   res.send(`
     <!DOCTYPE html>
     <html lang="es">
@@ -117,10 +117,10 @@ app.get(BASE_PATH + '/', (req, res) => {
 
 // Ruta de salud para Docker health checks
 app.get(BASE_PATH + '/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     timestamp: new Date().toISOString(),
-    basePath: BASE_PATH 
+    basePath: BASE_PATH
   });
 });
 

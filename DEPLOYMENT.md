@@ -37,54 +37,72 @@ Esta guía te llevará paso a paso para desplegar esta aplicación en Dockploy u
 
 1. Click en **"+ Create Service"**
 2. Selecciona **"Compose"**
+3. En el formulario "Create Compose":
+   - **Name**: `web` (o el nombre que prefieras para el servicio)
+   - **App Name**: `demodockploy-web` (se genera automático, puedes cambiarlo)
+   - **Compose Type**: Deja `Docker Compose` (por defecto)
+   - **Description**: "Demo app Hello World con Node.js"
+4. Click en **"Create"**
 
-### Paso 4: Configurar el Repositorio
+### Paso 4: Configurar Git/GitHub
 
-En la configuración del servicio Compose:
+Después de crear el servicio, verás la pantalla de configuración. Aquí es donde conectas con GitHub:
 
-1. **Service Name**: `demodockploy` (o el nombre que prefieras)
-2. **Repository Provider**: Selecciona **"GitHub"** o **"Git"**
-3. **Repository URL**: `https://github.com/IT-DAG/DemoDockploy.git`
-4. **Branch**: `main`
-5. **Compose File Path**: `docker-compose.yml` (por defecto)
+1. Busca la sección **"Source"**, **"Repository"** o **"Git"**
+2. Configuración:
+   - **Provider**: Selecciona **"GitHub"** o **"Git"**
+   - **Repository URL**: `https://github.com/IT-DAG/DemoDockploy.git`
+   - **Branch**: `main`
+   - **Compose File Path**: `docker-compose.yml` (por defecto, puede estar autodetectado)
+
+> **💡 Nota**: Si no ves estas opciones inmediatamente, busca tabs o secciones como:
+> - "Source"
+> - "Git"
+> - "Repository"
+> - "Settings"
 
 ### Paso 5: Configurar Dominio y Rutas
 
-Esta es la parte importante para que funcione con subdirectorios:
+En la sección de **Domains** o **Routing** del servicio:
 
-1. En la sección **"Domains"** o **"Routing"**:
-   - **Domain**: `dockploy.domingoalonsoit.com`
-   - **Path** o **Prefix**: `/DemoDockploy`
-   - **Port**: `3000` (el puerto del contenedor)
+1. **Domain**: `dockploy.domingoalonsoit.com`
+2. **Path** o **Path Prefix**: `/DemoDockploy`
+3. **Container Port**: `3000` (el puerto interno del contenedor)
 
-> **⚠️ Importante**: La configuración exacta puede variar según tu versión de Dockploy. Busca opciones como:
-> - Path Prefix
-> - Context Path
-> - Base Path
-> - Traefik Rule
+> **⚠️ Importante**: La configuración puede variar según la versión de Dockploy. Busca:
+> - Path Prefix / Base Path / Context Path
+> - Port mapping / Container Port
+> - Traefik Labels (avanzado)
 
 ### Paso 6: Configurar Variables de Entorno (Opcional)
 
-Si necesitas sobrescribir alguna variable del `docker-compose.yml`:
+Si necesitas sobrescribir alguna variable del `docker-compose.yml`, búscalas en la sección **Environment Variables**:
 
 ```
 NODE_ENV=production
 ```
 
-> **📝 Nota**: No necesitas configurar `PORT` ni `BASE_PATH` aquí porque ya están en el `docker-compose.yml`.
+> **📝 Nota**: No necesitas agregar `PORT` ni `BASE_PATH` aquí porque ya están definidas en el `docker-compose.yml`.
 
-### Paso 7: Desplegar
+### Paso 7: Guardar Configuración
 
-1. Click en **"Deploy"** o **"Create & Deploy"**
+1. Click en **"Save"** o **"Apply"** para guardar la configuración
+2. Asegúrate de que todos los campos estén correctos
+
+### Paso 8: Desplegar
+
+1. Click en **"Deploy"**, **"Build & Deploy"** o el botón equivalente
 2. Dockploy ejecutará:
    ```bash
    git clone https://github.com/IT-DAG/DemoDockploy.git
+   cd DemoDockploy
    docker-compose up --build -d
    ```
-3. Espera a que se construya la imagen y se inicie el contenedor
-4. Verifica que el estado sea "healthy" o "running"
+3. Espera a que se construya la imagen (puede tomar 1-2 minutos la primera vez)
+4. Monitorea los logs para ver el progreso
+5. Verifica que el estado sea "healthy" o "running"
 
-### Paso 8: Verificar el Despliegue
+### Paso 9: Verificar el Despliegue
 
 Abre tu navegador y ve a:
 - **App principal**: `http://dockploy.domingoalonsoit.com/DemoDockploy`
